@@ -7,14 +7,24 @@ sys.path.insert(0, str(PROJECT_ROOT))
 import pytest
 
 from app import app
-
+from database import get_connection
 
 @pytest.fixture
 def client():
     app.config["TESTING"] = True
 
+    connection = get_connection()
+    connection.execute("DELETE FROM links")
+    connection.commit()
+    connection.close()
+
     with app.test_client() as client:
         yield client
+
+    connection = get_connection()
+    connection.execute("DELETE FROM links")
+    connection.commit()
+    connection.close()
 
 
 def test_create_link(client):
